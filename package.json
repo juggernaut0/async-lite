@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "jest": "25.1"
+  },
+  "jest": {
+    "testRegex": "_test\\.js$"
+  }
+}
