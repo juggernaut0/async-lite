@@ -1,7 +1,7 @@
 plugins {
     kotlin("js") version "1.5.0"
     `maven-publish`
-    id("org.jetbrains.dokka") version "0.10.0"
+    id("org.jetbrains.dokka") version "1.4.30"
 }
 
 group = "com.github.juggernaut0"
