@@ -39,7 +39,13 @@ publishing {
     repositories {
         maven {
             name = "pages"
-            url = uri("pages/m2/repository")
+            url = uri("$rootDir/pages/m2/repository")
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            artifact(tasks.named("jsJar"))
+            artifact(tasks.named("kotlinSourcesJar"))
         }
     }
 }

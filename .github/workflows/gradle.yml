@@ -33,7 +33,7 @@ jobs:
         token: ${{ secrets.PUBLISH_TOKEN }}
     - name: Publish
       run: |
-        ./gradlew publishMavenPublicationToPagesRepository
+        ./gradlew publishAllPublicationsToPagesRepository
         cd pages
         git checkout -b async-lite-${{ github.sha }}
         git add m2 docs
