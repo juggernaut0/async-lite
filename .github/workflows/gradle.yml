@@ -33,8 +33,7 @@ jobs:
         token: ${{ secrets.PUBLISH_TOKEN }}
     - name: Publish
       run: |
-        ./gradlew publishMavenPublicationToPagesRepository dokka
-        cp -r build/dokka/* pages/docs
+        ./gradlew publishMavenPublicationToPagesRepository
         cd pages
         git checkout -b async-lite-${{ github.sha }}
         git add m2 docs

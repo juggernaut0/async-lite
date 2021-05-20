@@ -1,6 +1,6 @@
 package asynclite
 
-import kotlin.browser.window
+import kotlinx.browser.window
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -44,7 +44,7 @@ suspend fun delay(millis: Int) {
     }
 }
 
-@UseExperimental(ExperimentalContracts::class)
+@OptIn(ExperimentalContracts::class)
 suspend inline fun delay(millis: Int, crossinline fn: (Cancellation) -> Unit) {
     contract {
         callsInPlace(fn, kind = InvocationKind.EXACTLY_ONCE)
