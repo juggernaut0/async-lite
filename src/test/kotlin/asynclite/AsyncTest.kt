@@ -54,4 +54,16 @@ class AsyncTest {
             assertEquals("hi", e.message)
         }
     }
+
+    @Test
+    fun scoped() = async {
+        var flag = false
+        scope {
+            async {
+                delay(50)
+                flag = true
+            }
+        }
+        assertTrue(flag)
+    }
 }

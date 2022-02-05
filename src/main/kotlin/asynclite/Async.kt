@@ -10,10 +10,44 @@ import kotlin.coroutines.startCoroutine
 import kotlin.coroutines.suspendCoroutine
 import kotlin.js.Promise
 
-fun <T> async(block: suspend () -> T): Promise<T> {
-    return Promise { resolve, reject ->
-        block.startCoroutine(Continuation(EmptyCoroutineContext) { it.fold(resolve, reject) })
-    }
+fun <T> async(block: suspend CoroutineScope.() -> T): Promise<T> = mkPromise(block)
+
+private fun <T> mkPromise(block: suspend CoroutineScope.() -> T): Promise<T> {
+    val scope = CoroutineScopeImpl(arrayOf())
+    return Promise<T> { resolve, reject ->
+        block.startCoroutine(scope, Continuation(EmptyCoroutineContext) { it.fold(resolve, reject) })
+    }.then { res ->
+        scope.waitForChildren(res)
+    }.flatten()
+}
+
+fun <T> CoroutineScope.async(block: suspend CoroutineScope.() -> T): Promise<T> {
+    val p = mkPromise(block)
+    this as CoroutineScopeImpl
+    children.asDynamic().push(p)
+    return p
+}
+
+private fun <T> CoroutineScopeImpl.waitForChildren(res: T): Promise<T> {
+    return Promise.allSettled(children).then { res }
+}
+
+private inline fun <T> Promise.Companion.allSettled(ps: Array<Promise<T>>): Promise<Array<PromiseOutcome<T>>> {
+    return asDynamic().allSettled(ps).unsafeCast<Promise<Array<PromiseOutcome<T>>>>()
+}
+
+interface PromiseOutcome<T>
+
+private inline fun <T> Promise<Promise<T>>.flatten(): Promise<T> {
+    return then { it }
+}
+
+suspend fun <T> CoroutineScope.scope(block: suspend CoroutineScope.() -> T): T {
+    var t: T? = null
+    async {
+        t = block()
+    }.await()
+    return t.unsafeCast<T>()
 }
 
 fun <T> Promise<T>.wrap(): Promise<Result<T>> {
@@ -63,3 +97,6 @@ class Cancellation(private val handle: Int) {
         window.clearTimeout(handle)
     }
 }
+
+interface CoroutineScope
+private class CoroutineScopeImpl(val children: Array<Promise<*>>) : CoroutineScope
