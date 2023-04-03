@@ -1,7 +1,7 @@
 plugins {
     kotlin("js") version "1.8.20"
     `maven-publish`
-    id("dev.twarner.download-firefox") version "0.3.5-SNAPSHOT"
+    id("dev.twarner.download-firefox") version "0.3.5"
 }
 
 group = "com.github.juggernaut0"
