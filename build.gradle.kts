@@ -1,32 +1,35 @@
 plugins {
-    kotlin("js") version "1.5.0"
+    kotlin("js") version "1.8.20"
     `maven-publish`
+    id("dev.twarner.download-firefox") version "0.3.5"
 }
 
 group = "com.github.juggernaut0"
-version = "0.2.0"
+version = "0.3.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(kotlin("stdlib-js"))
-    testImplementation(kotlin("test-js"))
+    testImplementation(kotlin("test"))
 }
 
 kotlin {
-    js {
+    js(BOTH) {
         browser {
             compilations.all {
                 kotlinOptions {
                     moduleKind = "umd"
                     sourceMap = true
                     sourceMapEmbedSources = "always"
-                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
             }
             testTask {
+                dependsOn(tasks.downloadFirefox)
+                doFirst {
+                    environment("FIREFOX_BIN", tasks.downloadFirefox.flatMap { it.outputBin }.get().asFile.absolutePath)
+                }
                 useKarma {
                     useFirefoxHeadless()
                 }
@@ -44,8 +47,7 @@ publishing {
     }
     publications {
         create<MavenPublication>("maven") {
-            artifact(tasks.named("jsJar"))
-            artifact(tasks.named("kotlinSourcesJar"))
+            from(components.getByName("kotlin"))
         }
     }
 }
